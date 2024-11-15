@@ -130,5 +130,26 @@ describe("multiVickreyAuction", () => {
       // await printSortedList();
     }
     await printSortedList();
+
+    // claim nfts
+    for (let winner of [0, 1, 2, 3, 4]) {
+      const x = await appChain.query.runtime.MultiVickreyAuction.mintMap.get(
+        new MintMapKey({ collection: creator, index: UInt64.from(winner) })
+      );
+      console.log(`x: ${x?.value.toBigInt()}`);
+
+      // console.log(`winner: ${winner}`);
+      // appChain.setSigner(bidderPrivateKeys[winner]);
+      // let tx = await appChain.transaction(bidders[winner], async () => {
+      //   await auction.claimMint(creator);
+      // });
+      // await tx.sign();
+      // await tx.send();
+      // let block = await appChain.produceBlock();
+      // expect(
+      //   block?.transactions[0].status.toBoolean(),
+      //   block?.transactions[0].statusMessage
+      // ).toBe(true);
+    }
   }, 1_000_000);
 });

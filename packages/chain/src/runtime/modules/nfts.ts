@@ -36,7 +36,7 @@ export class NFTs extends RuntimeModule<{}> {
 
   @runtimeMethod()
   public async mintSigned(to: PublicKey, id: UInt64) {
-    this.mint(this.transaction.sender.value, id, to);
+    await this.mint(this.transaction.sender.value, id, to);
   }
 
   @runtimeMethod()

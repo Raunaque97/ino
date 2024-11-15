@@ -33,6 +33,7 @@ export class MultiVickreyAuctionData extends Struct({
   startTime: UInt64,
   biddingEndTime: UInt64,
   nftCount: UInt64, // number of nfts to auction
+  cutOffPointer: UInt64, // a pointer that points to the n+1th highest bid in the sorted list
 }) {}
 
 export class DLLKey extends Struct({
@@ -97,6 +98,7 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
         biddingDuration
       ),
       nftCount,
+      cutOffPointer: UInt64.from(0),
     });
     await this.records.set(collection, auctionData);
     // initialize the sorted list
@@ -158,6 +160,35 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
       MultiVickreyAuction.ADDRESS,
       bid
     );
+    // update the cutOffPointer
+    const { value: cutOff } = await this.sortedListElements.get(
+      new DLLKey({ collection, index: auctionData.value.cutOffPointer })
+    );
+    const totalBids = await this.counters.get(collection);
+    const shouldMove = totalBids.value
+      .greaterThan(auctionData.value.nftCount)
+      .and(cutOff.bid.lessThan(bid));
+    const newCutOffPointer = Provable.if(
+      shouldMove,
+      UInt64,
+      cutOff.prev,
+      auctionData.value.cutOffPointer
+    );
+    await this.records.set(collection, {
+      ...auctionData.value,
+      cutOffPointer: new UInt64(newCutOffPointer),
+    });
+    // Provable.asProver(() => {
+    //   if (this.network.block.height.toBigInt() === 0n) {
+    //     return;
+    //   }
+    //   console.log(
+    //     `oldCutOffPointer ${auctionData.value.cutOffPointer.toBigInt().toString()}`,
+    //     `newCutOffPointer ${newCutOffPointer.value.toBigInt().toString()}`,
+    //     `prev ${cutOff.prev.toBigInt().toString()}`,
+    //     `next ${cutOff.next.toBigInt().toString()}`
+    //   );
+    // });
   }
 
   private async insertIntoSortedList(
