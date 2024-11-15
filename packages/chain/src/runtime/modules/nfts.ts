@@ -6,7 +6,7 @@ import {
   state,
 } from "@proto-kit/module";
 import { StateMap, assert } from "@proto-kit/protocol";
-import { Bool, Field, PublicKey, Struct } from "o1js";
+import { Bool, Field, Provable, PublicKey, Struct } from "o1js";
 
 export class NFTKey extends Struct({
   collection: PublicKey,
@@ -31,6 +31,11 @@ export class NFTs extends RuntimeModule<{}> {
 
   public async mint(collection: PublicKey, id: UInt64, to: PublicKey) {
     const key = NFTKey.from(collection, id);
+    Provable.asProver(() => {
+      console.log(
+        `mintKey: ${key.collection.toBase58()}, ${key.id.toBigInt()}, owner: ${to.toBase58()}}`
+      );
+    });
     await this.nftRecords.set(key, new NFTEntity({ owner: to, id }));
   }
 
@@ -45,6 +50,12 @@ export class NFTs extends RuntimeModule<{}> {
     assert(isSome, "nft does not exists");
     // check if sender is the current owner
     assert(nft.owner.equals(this.transaction.sender.value), "Not owner of NFT");
+
+    Provable.asProver(() => {
+      console.log(
+        `owner: ${nft.owner.toBase58()} sender: ${this.transaction.sender.value.toBase58()}`
+      );
+    });
 
     await this.transfer(to, nftKey);
   }

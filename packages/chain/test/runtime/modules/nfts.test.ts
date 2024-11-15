@@ -46,7 +46,10 @@ describe("nfts", () => {
     await tx.sign();
     await tx.send();
     const block = await appChain.produceBlock();
-    expect(block?.transactions[0].status.toBoolean()).toBe(true);
+    expect(
+      block?.transactions[0].status.toBoolean(),
+      block?.transactions[0].statusMessage
+    ).toBe(true);
 
     return {
       collection: minter,
@@ -70,7 +73,10 @@ describe("nfts", () => {
     await tx2.send();
 
     const block = await appChain.produceBlock();
-    expect(block?.transactions[0].status.toBoolean()).toBe(true);
+    expect(
+      block?.transactions[0].status.toBoolean(),
+      block?.transactions[0].statusMessage
+    ).toBe(true);
 
     // Verify new ownership
     const transferredNft =

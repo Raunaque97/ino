@@ -48,6 +48,11 @@ export class DLLValue extends Struct({
   bidder: PublicKey,
 }) {}
 
+export class MintMapKey extends Struct({
+  collection: PublicKey,
+  index: UInt64,
+}) {}
+
 @runtimeModule()
 export class MultiVickreyAuction extends RuntimeModule<{}> {
   public static readonly ADDRESS = PublicKey.from({
@@ -70,6 +75,10 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
   // mapping from collectionAddress => sortedList length
   @state() public counters = StateMap.from<PublicKey, UInt64>(
     PublicKey,
+    UInt64
+  );
+  @state() public mintMap = StateMap.from<MintMapKey, UInt64>(
+    MintMapKey,
     UInt64
   );
 
@@ -189,6 +198,115 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
     //     `next ${cutOff.next.toBigInt().toString()}`
     //   );
     // });
+  }
+
+  @runtimeMethod()
+  public async claimMint(collection: PublicKey) {
+    const { value: auctionData, isSome } = await this.records.get(collection);
+    assert(isSome, "Auction does not exist");
+    assert(
+      auctionData.biddingEndTime.lessThanOrEqual(
+        new UInt64(this.network.block.height)
+      ),
+      "Auction has not ended"
+    );
+    const { value: sender } = this.transaction.sender;
+    // find DLLkey from sender Addr
+    const dllKey = Provable.witness(DLLKey, () => {
+      const bids = this.sortedListStorage.get(collection.toBase58()) || [];
+      for (let i = 0; i < bids.length; i++) {
+        if (
+          bids[i].bidder.toLocaleLowerCase() ===
+          sender.toBase58().toLocaleLowerCase()
+        ) {
+          return new DLLKey({
+            collection,
+            index: UInt64.from(bids[i].idx),
+          });
+        }
+      }
+      return new DLLKey({
+        collection: PublicKey.from({ x: 0n, isOdd: Bool(false) }),
+        index: UInt64.from(0),
+      });
+    });
+    const { value: dllValue } = await this.sortedListElements.get(dllKey);
+
+    // Provable.asProver(() => {
+    //   if (this.network.block.height.toBigInt() === 0n) {
+    //     return;
+    //   }
+    // console.log(
+    //   `
+    //   dllKey: ${dllKey.collection.toBase58()}, ${dllKey.index.toBigInt()},
+    //   dllValue:
+    //     bid: ${dllValue.bid.toBigInt().toString()},
+    //     bidder: ${dllValue.bidder.toBase58()}`
+    // );
+    // });
+
+    // assert sender Addr
+    assert(
+      dllValue.bidder.equals(sender),
+      "Bidder is not the same as the one in the list"
+    );
+    // assert winner
+    const { value: cutOff } = await this.sortedListElements.get(
+      new DLLKey({ collection, index: auctionData.cutOffPointer })
+    );
+    assert(cutOff.bid.lessThanOrEqual(dllValue.bid), "Bidder is not a winner");
+    // mint a random nft to the bidder
+    const { rest: r } = Provable.witness(UInt64, () => {
+      return UInt64.from(Math.floor(Math.random() * 2 ** 64));
+    }).divMod(
+      new UInt64(
+        Provable.if(
+          auctionData.nftCount.equals(0),
+          UInt64,
+          UInt64.from(1),
+          auctionData.nftCount
+        )
+      )
+    );
+    const { value: mintMapValue, isSome: mintedOnce } = await this.mintMap.get(
+      new MintMapKey({ collection, index: r })
+    );
+    const idToMint = Provable.if(mintedOnce, UInt64, mintMapValue, r);
+    await this.nfts.mint(
+      collection,
+      UInt64.Unsafe.fromField(idToMint.value),
+      dllValue.bidder
+    );
+
+    await this.mintMap.set(
+      new MintMapKey({ collection, index: r }),
+      auctionData.nftCount.sub(1)
+    );
+    // update nftCount
+    await this.records.set(collection, {
+      ...auctionData,
+      nftCount: auctionData.nftCount.sub(1),
+    });
+    // transfer remaining balance
+    await this.balances.transfer(
+      BASE_TOKEN_ID,
+      MultiVickreyAuction.ADDRESS,
+      sender,
+      dllValue.bid.sub(cutOff.bid)
+    );
+    Provable.asProver(() => {
+      if (this.network.block.height.toBigInt() === 0n) {
+        return;
+      }
+      // console.log(
+      //   `
+      //   cutOff.bid: ${cutOff.bid.toBigInt()},
+      //   cutOff.bidder: ${cutOff.bidder.toBase58()},
+      //   dllValue.bid: ${dllValue.bid.toBigInt()},
+      //   dllValue.bidder: ${dllValue.bidder.toBase58()},
+      //   refund: ${dllValue.bid.sub(cutOff.bid).toBigInt()}, cutoff ${cutOff.bid.toBigInt()}, bid ${dllValue.bid.toBigInt()}`
+      // );
+    });
   }
 
   private async insertIntoSortedList(
