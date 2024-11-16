@@ -220,6 +220,9 @@ importers:
       '@proto-kit/sequencer':
         specifier: '*'
         version: 0.1.1-develop.1088(@proto-kit/common@0.1.1-develop.1088(o1js@1.6.0)(tsyringe@4.8.0))(@proto-kit/module@0.1.1-develop.1088(@proto-kit/common@0.1.1-develop.1088(o1js@1.6.0)(tsyringe@4.8.0))(@proto-kit/protocol@0.1.1-develop.1088(@proto-kit/common@0.1.1-develop.1088(o1js@1.6.0)(tsyringe@4.8.0))(o1js@1.6.0)(ts-pattern@4.3.0)(tsyringe@4.8.0))(o1js@1.6.0)(tsyringe@4.8.0))(@proto-kit/protocol@0.1.1-develop.1088(@proto-kit/common@0.1.1-develop.1088(o1js@1.6.0)(tsyringe@4.8.0))(o1js@1.6.0)(ts-pattern@4.3.0)(tsyringe@4.8.0))(o1js@1.6.0)(tsyringe@4.8.0)
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       graphql-fields:
         specifier: ^2.0.3
         version: 2.0.3
