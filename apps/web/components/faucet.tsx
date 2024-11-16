@@ -58,7 +58,7 @@ export function Faucet({
             wallet && onDrip();
           }}
         >
-          {wallet ? "Drip 💦" : "Connect wallet"}
+          {wallet ? "Mint" : "Connect wallet"}
         </Button>
       </Form>
     </Card>
