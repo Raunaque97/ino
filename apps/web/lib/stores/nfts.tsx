@@ -6,6 +6,7 @@ import { PublicKey } from "o1js";
 import { NFTKey, NFTEntity } from "chain";
 import { UInt64 } from "@proto-kit/library";
 import { mockNFTs } from "./mock";
+import { useWalletStore } from "./wallet";
 export type NFTData = {
   owner: string;
   id: number;
@@ -65,6 +66,8 @@ export const useNFTStore = create<NFTState, [["zustand/immer", never]]>(
         throw new Error("Transaction is not a PendingTransaction");
       }
 
+      const wallet = useWalletStore();
+      wallet.addPendingTransaction(tx.transaction as PendingTransaction);
       return tx.transaction;
     },
   })),

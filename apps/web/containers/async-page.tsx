@@ -2,21 +2,21 @@
 import { Faucet } from "@/components/faucet";
 import { useFaucet } from "@/lib/stores/balances";
 import { useWalletStore } from "@/lib/stores/wallet";
-import { BidINOs, CreateINO, ClaimNFTs } from "@/components/inos";
+import { ActiveINOs, CreateINO, MyNFTs } from "@/components/inos";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 export default function Home() {
   const wallet = useWalletStore();
   const drip = useFaucet();
 
   return (
-    <Tabs className="container pt-16" defaultValue="faucet">
+    <Tabs className="container py-16" defaultValue="faucet">
       <TabsList>
         <TabsTrigger value="faucet">Faucet</TabsTrigger>
         <TabsTrigger value="bid">Bid INOs</TabsTrigger>
         <TabsTrigger value="create">Create INO</TabsTrigger>
-        <TabsTrigger value="claim">Claim NFTs</TabsTrigger>
+        <TabsTrigger value="my">My NFTs</TabsTrigger>
       </TabsList>
-      <div className="w-1/2">
+      <div className="w-fit">
         <TabsContent value="faucet">
           <Faucet
             wallet={wallet.wallet}
@@ -26,13 +26,13 @@ export default function Home() {
           />
         </TabsContent>
         <TabsContent value="bid">
-          <BidINOs />
+          <ActiveINOs />
         </TabsContent>
         <TabsContent value="create">
           <CreateINO />
         </TabsContent>
-        <TabsContent value="claim">
-          <ClaimNFTs />
+        <TabsContent value="my">
+          <MyNFTs />
         </TabsContent>
       </div>
     </Tabs>

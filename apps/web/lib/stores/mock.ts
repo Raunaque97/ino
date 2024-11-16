@@ -3,24 +3,24 @@ import { NFTData } from "./nfts";
 
 // mock auction data with multiple collections
 export const mockAuctions: { [collection: string]: AuctionData } = {
-  "bored-apes": {
-    creator: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-    startTime: Date.now() - 7 * 24 * 60 * 60 * 1000, // Started 7 days ago
-    biddingEndTime: Date.now() + 3 * 24 * 60 * 60 * 1000, // Ends in 3 days
+  "bored apes": {
+    creator: "B62qo1TsEcTJuNRW68K7ca4PQsre8k2LfkDU68PwxBanD1RxC1ixPec",
+    startTime: 10,
+    biddingEndTime: 500,
     nftCount: 50,
     cutOffPointer: 35,
   },
   cryptopunks: {
-    creator: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-    startTime: Date.now() - 2 * 24 * 60 * 60 * 1000, // Started 2 days ago
-    biddingEndTime: Date.now() + 5 * 24 * 60 * 60 * 1000, // Ends in 5 days
+    creator: "B62qo1TsEcTJuNRW68K7ca4PQsre8k2LPec68PwxfkDxC1ixUBanD1R",
+    startTime: 2,
+    biddingEndTime: 15,
     nftCount: 100,
     cutOffPointer: 65,
   },
   doodles: {
-    creator: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-    startTime: Date.now() + 24 * 60 * 60 * 1000, // Starts in 1 day
-    biddingEndTime: Date.now() + 10 * 24 * 60 * 60 * 1000, // Ends in 10 days
+    creator: "B62qoNRW68K7ca4PQsre8k2LfkDUBanD1RxC1ixPec68Pwx1TsEcTJu",
+    startTime: 10,
+    biddingEndTime: 20,
     nftCount: 75,
     cutOffPointer: 0,
   },
@@ -28,28 +28,28 @@ export const mockAuctions: { [collection: string]: AuctionData } = {
 
 // mock NFT data with multiple collections
 export const mockNFTs: { [collection: string]: NFTData } = {
-  "bored-ape-1": {
-    owner: "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+  "bored ape 1": {
+    owner: "B62qo1TsEcTJuNRW68K7ca4PQsre8k2LfkDUBanD1RxC1ixPec68Pwx",
     id: 1234,
   },
-  "bored-ape-2": {
-    owner: "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "bored ape 2": {
+    owner: "B62qo1TsEcTJuNRW68C1ixPec68PwxK7ca4PQsre8k2LfkDUBanD1Rx",
     id: 1235,
   },
-  "cryptopunk-1": {
-    owner: "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+  "cryptopunk 1": {
+    owner: "B62qo1TsEcTJ4PQsre8k2LfkDUBanuNRW68K7caD1RxC1ixPec68Pwx",
     id: 5678,
   },
-  "cryptopunk-2": {
-    owner: "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+  "cryptopunk 2": {
+    owner: "B62qo1T4PQsre8k2LfkDUBanD1RxC1sEcTJuNRW68K7caixPec68Pwx",
     id: 5679,
   },
-  "doodle-1": {
-    owner: "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+  "doodle 1": {
+    owner: "B62qo1TsEcnD1RxC1ixPec68PwxRW68K7ca4PQsrTJuNLfkDUBae8k2",
     id: 9012,
   },
-  "doodle-2": {
-    owner: "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+  "doodle 2": {
+    owner: "B62qo1TsEnD1RxC1ixPec68PwxcTJuNRW68K7ca4PQsre8k2LfkDUBa",
     id: 9013,
   },
 };

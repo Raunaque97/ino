@@ -5,6 +5,7 @@ import { PendingTransaction } from "@proto-kit/sequencer";
 import { Balance, UInt64 } from "@proto-kit/library";
 import { PublicKey } from "o1js";
 import { mockAuctions } from "./mock";
+import { useWalletStore } from "./wallet";
 
 export type AuctionData = {
   creator: string;
@@ -86,6 +87,8 @@ export const useAuctionStore = create<AuctionState, [["zustand/immer", never]]>(
         throw new Error("Transaction is not a PendingTransaction");
       }
 
+      const wallet = useWalletStore();
+      wallet.addPendingTransaction(tx.transaction as PendingTransaction);
       return tx.transaction;
     },
 
@@ -104,6 +107,8 @@ export const useAuctionStore = create<AuctionState, [["zustand/immer", never]]>(
         throw new Error("Transaction is not a PendingTransaction");
       }
 
+      const wallet = useWalletStore();
+      wallet.addPendingTransaction(tx.transaction as PendingTransaction);
       return tx.transaction;
     },
 
@@ -121,7 +126,8 @@ export const useAuctionStore = create<AuctionState, [["zustand/immer", never]]>(
       if (!(tx.transaction instanceof PendingTransaction)) {
         throw new Error("Transaction is not a PendingTransaction");
       }
-
+      const wallet = useWalletStore();
+      wallet.addPendingTransaction(tx.transaction as PendingTransaction);
       return tx.transaction;
     },
   })),
