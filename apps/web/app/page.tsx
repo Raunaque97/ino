@@ -2,15 +2,25 @@
 
 import { useState } from "react";
 import Header from "@/components/header";
+import { useWalletStore } from "@/lib/stores/wallet";
 import ActiveINOs from "@/components/activeINOs";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("active");
+  const { connectWallet, wallet } = useWalletStore();
   const [userBalance, setUserBalance] = useState(0);
+  const [blockHeight, setBlockHeight] = useState(0);
 
   return (
     <div className="min-h-screen bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Header
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        wallet={wallet}
+        onConnectWallet={connectWallet}
+        balance={userBalance}
+        blockHeight={blockHeight}
+      />
 
       <main className="container mx-auto max-w-7xl px-4 py-8">
         <div className="mb-8">

@@ -14,8 +14,7 @@ function Header({
 }) {
   const tabs = [
     { id: "active", label: "Active INOs" },
-    { id: "mybids", label: "My Bids" },
-    { id: "mycollections", label: "My Collections" },
+    { id: "mynfts", label: "My NFTs" },
     { id: "create", label: "Create INO" },
   ];
 
@@ -25,7 +24,7 @@ function Header({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-2xl font-bold text-transparent">
-              INO Platform
+              Innitial NFTs Offerings (INOs)
             </h1>
 
             <div className="flex space-x-1">
