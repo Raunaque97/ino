@@ -6,10 +6,17 @@ import { Balance, UInt64 } from "@proto-kit/library";
 import { PublicKey } from "o1js";
 import { MultiVickreyAuctionData } from "chain";
 
+export type AuctionData = {
+  creator: string;
+  biddingEndTime: number;
+  nftCount: number;
+  startTime: number;
+  cutOffPointer: number;
+};
 export interface AuctionState {
   loading: boolean;
   auctions: {
-    [collection: string]: MultiVickreyAuctionData;
+    [collection: string]: AuctionData;
   };
   loadAuction: (client: Client, collection: string) => Promise<void>;
   startAuction: (
@@ -44,7 +51,13 @@ export const useAuctionStore = create<AuctionState, [["zustand/immer", never]]>(
       set((state) => {
         state.loading = false;
         if (auction) {
-          state.auctions[collection] = auction;
+          state.auctions[collection] = {
+            creator: auction.creator.toBase58(),
+            biddingEndTime: Number(auction.biddingEndTime.toBigInt()),
+            startTime: Number(auction.startTime.toBigInt()),
+            nftCount: Number(auction.nftCount.toBigInt()),
+            cutOffPointer: Number(auction.cutOffPointer.toBigInt()),
+          };
         }
       });
     },

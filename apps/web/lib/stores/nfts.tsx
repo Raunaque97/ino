@@ -5,11 +5,14 @@ import { PendingTransaction } from "@proto-kit/sequencer";
 import { PublicKey } from "o1js";
 import { NFTKey, NFTEntity } from "chain";
 import { UInt64 } from "@proto-kit/library";
-
+export type NFTData = {
+  owner: string;
+  id: number;
+};
 export interface NFTState {
   loading: boolean;
   nfts: {
-    [key: string]: NFTEntity;
+    [key: string]: NFTData;
   };
   loadNFTs: (client: Client, address: string) => Promise<void>;
   transfer: (
@@ -37,7 +40,10 @@ export const useNFTStore = create<NFTState, [["zustand/immer", never]]>(
       set((state) => {
         state.loading = false;
         if (nfts) {
-          state.nfts[address] = nfts;
+          state.nfts[address] = {
+            owner: nfts.owner.toBase58(),
+            id: Number(nfts.id.toBigInt()),
+          };
         }
       });
     },
