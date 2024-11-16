@@ -55,9 +55,9 @@ export function BidINOs() {
           {Object.entries(data).length} Active INOs for bidding
         </p>
       </div>
-      {Object.entries(data).map(([collection, auction]) =>
-        BidINO(collection, auction),
-      )}
+      {Object.entries(data).map(([collection, auction]) => (
+        <div key={collection}>{BidINO(collection, auction)}</div>
+      ))}
     </Card>
   );
 }

@@ -4,7 +4,7 @@ import { Client, useClientStore } from "./client";
 import { PendingTransaction } from "@proto-kit/sequencer";
 import { Balance, UInt64 } from "@proto-kit/library";
 import { PublicKey } from "o1js";
-import { MultiVickreyAuctionData } from "chain";
+import { mockAuctions } from "./mock";
 
 export type AuctionData = {
   creator: string;
@@ -36,7 +36,7 @@ export interface AuctionState {
 export const useAuctionStore = create<AuctionState, [["zustand/immer", never]]>(
   immer((set) => ({
     loading: false,
-    auctions: {},
+    auctions: mockAuctions,
 
     async loadAuction(client: Client, collection: string) {
       set((state) => {

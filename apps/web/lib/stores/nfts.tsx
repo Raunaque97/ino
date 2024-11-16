@@ -5,6 +5,7 @@ import { PendingTransaction } from "@proto-kit/sequencer";
 import { PublicKey } from "o1js";
 import { NFTKey, NFTEntity } from "chain";
 import { UInt64 } from "@proto-kit/library";
+import { mockNFTs } from "./mock";
 export type NFTData = {
   owner: string;
   id: number;
@@ -26,7 +27,7 @@ export interface NFTState {
 export const useNFTStore = create<NFTState, [["zustand/immer", never]]>(
   immer((set) => ({
     loading: false,
-    nfts: {},
+    nfts: mockNFTs,
 
     async loadNFTs(client: Client, address: string) {
       set((state) => {
