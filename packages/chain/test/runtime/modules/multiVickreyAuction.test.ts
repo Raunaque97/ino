@@ -78,9 +78,17 @@ describe("multiVickreyAuction", () => {
         `${bidders[i].toBase58()}: ${balance?.value.toBigInt().toString()}`
       );
     }
+    // create collection
+    appChain.setSigner(creatorPrivateKey);
+    let tx = await appChain.transaction(creator, async () => {
+      await nfts.createCollection(Field(123));
+    });
+    await tx.sign();
+    await tx.send();
+    await appChain.produceBlock();
 
     // start auction
-    const tx = await appChain.transaction(creator, async () => {
+    tx = await appChain.transaction(creator, async () => {
       await auction.startAuction(creator, UInt64.from(4), UInt64.from(N));
     });
     await tx.sign();

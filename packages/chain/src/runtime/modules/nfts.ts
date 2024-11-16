@@ -22,11 +22,20 @@ export class NFTEntity extends Struct({
   id: UInt64,
 }) {}
 
+export class CollectionData extends Struct({
+  hash: Field,
+}) {}
+
 @runtimeModule()
 export class NFTs extends RuntimeModule<{}> {
   @state() public nftRecords = StateMap.from<NFTKey, NFTEntity>(
     NFTKey,
     NFTEntity
+  );
+
+  @state() public collectionRecords = StateMap.from<PublicKey, CollectionData>(
+    PublicKey,
+    CollectionData
   );
 
   public async mint(collection: PublicKey, id: UInt64, to: PublicKey) {
@@ -58,6 +67,14 @@ export class NFTs extends RuntimeModule<{}> {
     });
 
     await this.transfer(to, nftKey);
+  }
+
+  @runtimeMethod()
+  public async createCollection(hash: Field) {
+    await this.collectionRecords.set(
+      this.transaction.sender.value,
+      new CollectionData({ hash })
+    );
   }
 
   public async transfer(to: PublicKey, key: NFTKey) {

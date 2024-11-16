@@ -6,15 +6,15 @@ import { NFTs } from "./modules/nfts";
 import { MultiVickreyAuction } from "./modules/multiVickreyAuction";
 
 export const modules = VanillaRuntimeModules.with({
-  Balances,
-  NFTs,
   MultiVickreyAuction,
+  NFTs,
+  Balances,
 });
 
 export const config: ModulesConfig<typeof modules> = {
-  Balances: {},
-  NFTs: {},
   MultiVickreyAuction: {},
+  NFTs: {},
+  Balances: {},
 };
 
 export default {

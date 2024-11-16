@@ -270,6 +270,29 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
     );
   }
 
+  @runtimeMethod()
+  public async withdraw(collection: PublicKey) {
+    const { value: auctionData, isSome } = await this.records.get(collection);
+    assert(isSome, "Auction does not exist");
+    assert(
+      auctionData.biddingEndTime.lessThanOrEqual(
+        new UInt64(this.network.block.height)
+      ),
+      "Auction has not ended"
+    );
+    const { value: sender } = this.transaction.sender;
+    // transfer funds from auction
+    const { value: cutOff } = await this.sortedListElements.get(
+      new DLLKey({ collection, index: auctionData.cutOffPointer })
+    );
+    await this.balances.transfer(
+      BASE_TOKEN_ID,
+      MultiVickreyAuction.ADDRESS,
+      sender,
+      cutOff.bid.mul(auctionData.nftCount)
+    );
+  }
+
   private async insertIntoSortedList(
     collection: PublicKey,
     bid: UInt64,
