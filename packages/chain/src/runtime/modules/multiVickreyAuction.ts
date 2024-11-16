@@ -125,7 +125,6 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
         { bid: 0, idx: 0, bidder: this.transaction.sender.value.toBase58() },
       ]);
     });
-    // TODO: transfer nfts to auction ??
   }
 
   @runtimeMethod()
@@ -145,23 +144,6 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
       this.transaction.sender.value
     );
 
-    // Provable.asProver(async () => {
-    //   if (this.network.block.height.toBigInt() === 0n) {
-    //     return;
-    //   }
-    //   console.log(
-    //     `balance ${(
-    //       await this.balances.balances.get(
-    //         new BalancesKey({
-    //           address: this.transaction.sender.value,
-    //           tokenId: BASE_TOKEN_ID,
-    //         })
-    //       )
-    //     ).value.toBigInt()}`,
-    //     `sender ${this.transaction.sender.value.toBase58()}`,
-    //     `bid ${bid.toBigInt().toString()}`
-    //   );
-    // });
     // transfer funds from bidder
     await this.balances.transfer(
       BASE_TOKEN_ID,
@@ -173,31 +155,37 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
     const { value: cutOff } = await this.sortedListElements.get(
       new DLLKey({ collection, index: auctionData.value.cutOffPointer })
     );
+    assert(cutOff.bid.lessThan(bid), "Nnot higher than the minimum bid");
     const totalBids = await this.counters.get(collection);
-    const shouldMove = totalBids.value
-      .greaterThan(auctionData.value.nftCount)
-      .and(cutOff.bid.lessThan(bid));
-    const newCutOffPointer = Provable.if(
-      shouldMove,
-      UInt64,
-      cutOff.prev,
-      auctionData.value.cutOffPointer
+    const shouldMove = totalBids.value.greaterThan(auctionData.value.nftCount);
+    const newCutOffPointer = new UInt64(
+      Provable.if(
+        shouldMove,
+        UInt64,
+        cutOff.prev,
+        auctionData.value.cutOffPointer
+      )
     );
     await this.records.set(collection, {
       ...auctionData.value,
-      cutOffPointer: new UInt64(newCutOffPointer),
+      cutOffPointer: newCutOffPointer,
     });
-    // Provable.asProver(() => {
-    //   if (this.network.block.height.toBigInt() === 0n) {
-    //     return;
-    //   }
-    //   console.log(
-    //     `oldCutOffPointer ${auctionData.value.cutOffPointer.toBigInt().toString()}`,
-    //     `newCutOffPointer ${newCutOffPointer.value.toBigInt().toString()}`,
-    //     `prev ${cutOff.prev.toBigInt().toString()}`,
-    //     `next ${cutOff.next.toBigInt().toString()}`
-    //   );
-    // });
+    // refund the cutOff bidder
+    const { value: newCutOff } = await this.sortedListElements.get(
+      new DLLKey({ collection, index: newCutOffPointer })
+    );
+    const refundAmt = Provable.if(
+      shouldMove,
+      UInt64,
+      newCutOff.bid,
+      UInt64.from(0)
+    );
+    await this.balances.transfer(
+      BASE_TOKEN_ID,
+      MultiVickreyAuction.ADDRESS,
+      newCutOff.bidder,
+      new Balance(refundAmt)
+    );
   }
 
   @runtimeMethod()
@@ -231,20 +219,6 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
       });
     });
     const { value: dllValue } = await this.sortedListElements.get(dllKey);
-
-    // Provable.asProver(() => {
-    //   if (this.network.block.height.toBigInt() === 0n) {
-    //     return;
-    //   }
-    // console.log(
-    //   `
-    //   dllKey: ${dllKey.collection.toBase58()}, ${dllKey.index.toBigInt()},
-    //   dllValue:
-    //     bid: ${dllValue.bid.toBigInt().toString()},
-    //     bidder: ${dllValue.bidder.toBase58()}`
-    // );
-    // });
-
     // assert sender Addr
     assert(
       dllValue.bidder.equals(sender),
@@ -294,19 +268,6 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
       sender,
       dllValue.bid.sub(cutOff.bid)
     );
-    Provable.asProver(() => {
-      if (this.network.block.height.toBigInt() === 0n) {
-        return;
-      }
-      // console.log(
-      //   `
-      //   cutOff.bid: ${cutOff.bid.toBigInt()},
-      //   cutOff.bidder: ${cutOff.bidder.toBase58()},
-      //   dllValue.bid: ${dllValue.bid.toBigInt()},
-      //   dllValue.bidder: ${dllValue.bidder.toBase58()},
-      //   refund: ${dllValue.bid.sub(cutOff.bid).toBigInt()}, cutoff ${cutOff.bid.toBigInt()}, bid ${dllValue.bid.toBigInt()}`
-      // );
-    });
   }
 
   private async insertIntoSortedList(
@@ -385,12 +346,6 @@ export class MultiVickreyAuction extends RuntimeModule<{}> {
       bidder: bidder.toBase58(),
     });
     this.sortedListStorage.set(collection.toBase58(), arr);
-    // console.log(
-    //   "sortedListStorage af insert at",
-    //   i,
-    //   arr.map((a) => ` (bid: ${a.bid}, idx: ${a.idx}) `).concat("")
-    // );
-    // console.log("return", returnIdx);
     return UInt64.from(returnIdx || 0);
   }
 }

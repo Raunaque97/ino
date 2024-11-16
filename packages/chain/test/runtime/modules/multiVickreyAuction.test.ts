@@ -114,7 +114,7 @@ describe("multiVickreyAuction", () => {
       const actions = [
         { bid: 500, bidder: 0 },
         { bid: 600, bidder: 1 },
-        { bid: 500, bidder: 2 },
+        { bid: 400, bidder: 2 },
       ];
       // place bid
       for (let i = 0; i < actions.length; i++) {
@@ -139,6 +139,10 @@ describe("multiVickreyAuction", () => {
 
       // claim nfts
       for (let winner of [0, 1]) {
+        // const x = await appChain.query.runtime.MultiVickreyAuction.mintMap.get(
+        //   new MintMapKey({ collection: creator, index: UInt64.from(winner) })
+        // );
+        // console.log(`x: ${x?.value.toBigInt()}`);
         appChain.setSigner(bidderPrivateKeys[winner]);
         console.log(`sender: ${bidders[winner].toBase58()}`);
         let tx = await appChain.transaction(bidders[winner], async () => {
@@ -158,6 +162,7 @@ describe("multiVickreyAuction", () => {
           collection: creator,
           id: UInt64.from(i),
         });
+        // expect(nft?.owner.toBase58()).toBe(bidders[i].toBase58());
         console.log(`nft owner: ${nft?.owner.toBase58()}`);
       }
 
@@ -175,6 +180,9 @@ describe("multiVickreyAuction", () => {
         bidderBalances.push(balance);
       }
       console.log(bidderBalances.map((b) => b?.value.toBigInt()));
+      expect(bidderBalances[0]?.value.toBigInt()).toBe(600n);
+      expect(bidderBalances[1]?.value.toBigInt()).toBe(600n);
+      expect(bidderBalances[2]?.value.toBigInt()).toBe(1000n);
     },
     10000 * 1000
   );
