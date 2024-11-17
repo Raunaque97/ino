@@ -23,7 +23,13 @@ export function ActiveINOs() {
       <Card className="h-full w-full p-4">
         <Form {...form}>
           <div className="pt-3">
-            <Image src="/placeholder.webp" alt="" width={200} height={200} />
+            <Image
+              className="aspect-square rounded-md object-cover"
+              src="/nft2.png"
+              alt=""
+              width={200}
+              height={200}
+            />
             <h1 className="text-2xl font-bold">{collection}</h1>
             <div>{shorten(data.creator)}</div>
             <div>ended at: {data.biddingEndTime}</div>
@@ -70,7 +76,13 @@ export function ActiveINOs() {
       <Card className="w-full p-4">
         <Form {...form}>
           <div className="pt-3">
-            <Image src="/placeholder.webp" alt="" width={200} height={200} />
+            <Image
+              className="aspect-square rounded-md object-cover"
+              src="/nft3.webp"
+              alt=""
+              width={200}
+              height={200}
+            />
             <h1 className="text-2xl font-bold">{collection}</h1>
             <div>{shorten(data.creator)}</div>
             <div>ends in : {endsIn}</div>
@@ -219,7 +231,13 @@ export function MyNFTs() {
       <Card className="w-full p-4">
         {/* <Form {...form}> */}
         <div className="pt-3">
-          <Image src="/placeholder.webp" alt="" width={200} height={200} />
+          <Image
+            className="aspect-square rounded-md object-cover"
+            src="/nft1.jpg"
+            alt=""
+            width={200}
+            height={200}
+          />
           <h1 className="text-2xl font-bold">{collection}</h1>
           {/* <div>{shorten(data.owner)}</div> */}
           <div>#{data.id}</div>

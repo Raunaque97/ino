@@ -10,26 +10,39 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useNFTStore } from "@/lib/stores/nfts";
+import { UInt64 } from "@proto-kit/library";
 import { client, NFTs } from "chain";
 import { Field, PrivateKey } from "o1js";
 import { useForm } from "react-hook-form";
 
-const collections = [
+export const auctions = [
   {
-    Name: "Mina Rocks",
-    pvtKey: "EKES991mh7ovm3dvkgW8YfX6VtGk27kbbwMG5FRQGYFkLqkNd5SM", // public key: B62qmp1VwpB9oFgu7zhAqx28dw7DU85pM1vC4vcsxW1PdYu3tAwp51v
+    collection: {
+      Name: "Mina Rocks",
+      pvtKey: "EKES991mh7ovm3dvkgW8YfX6VtGk27kbbwMG5FRQGYFkLqkNd5SM",
+      publicKey: "B62qmp1VwpB9oFgu7zhAqx28dw7DU85pM1vC4vcsxW1PdYu3tAwp51v",
+    },
+    nftCount: 10,
+    duration: 12 * 60,
   },
   {
-    Name: "Pudgy Penguins",
-    pvtKey: "EKFbcmznkFvZxydgCatk7CcoTg69Hx9fqwbNCJ1HwxtUE3nUdSwi", // public key: B62qifSYcgeUDPz89qHVuJB12ApMrgJ4gBR1byf7N97esE2DeAJKn9G
+    collection: {
+      Name: "Pudgy Penguins",
+      pvtKey: "EKFbcmznkFvZxydgCatk7CcoTg69Hx9fqwbNCJ1HwxtUE3nUdSwi",
+      publicKey: "B62qifSYcgeUDPz89qHVuJB12ApMrgJ4gBR1byf7N97esE2DeAJKn9G",
+    },
+    nftCount: 2,
+    duration: 12 * 10,
   },
 ];
 
 export default function Create() {
   const script = async () => {
     const nfts = client.runtime.resolve("NFTs");
-    for (let i = 0; i < collections.length; i++) {
-      const collection = PrivateKey.fromBase58(collections[i].pvtKey);
+    const auction = client.runtime.resolve("MultiVickreyAuction");
+    // create collections
+    for (let i = 0; i < auctions.length; i++) {
+      const collection = PrivateKey.fromBase58(auctions[i].collection.pvtKey);
       // const collection = PrivateKey.random();
       const collectionAddr = collection.toPublicKey();
 
@@ -40,6 +53,26 @@ export default function Create() {
       await txn?.send();
       console.log(`created new collection address: ${collectionAddr.toBase58()} 
               private key: ${collection.toBase58()}`);
+    }
+    // sleep for 5 seconds
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // start Auctions
+    for (let i = 0; i < auctions.length; i++) {
+      const collection = PrivateKey.fromBase58(auctions[i].collection.pvtKey);
+      // const collection = PrivateKey.random();
+      const collectionAddr = collection.toPublicKey();
+      const txn = await client.transaction(collectionAddr, async () => {
+        await auction.startAuction(
+          collectionAddr,
+          UInt64.from(auctions[i].duration),
+          UInt64.from(auctions[i].nftCount),
+        );
+      });
+      txn.transaction = txn.transaction?.sign(collection);
+      await txn?.send();
+      console.log(
+        `created Auction for collection: ${collectionAddr.toBase58()}`,
+      );
     }
   };
   const form = useForm();

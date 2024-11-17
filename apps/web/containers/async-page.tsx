@@ -12,8 +12,7 @@ export default function Home() {
     <Tabs className="container py-16" defaultValue="faucet">
       <TabsList>
         <TabsTrigger value="faucet">Faucet</TabsTrigger>
-        <TabsTrigger value="bid">Bid INOs</TabsTrigger>
-        <TabsTrigger value="create">Create INO</TabsTrigger>
+        <TabsTrigger value="bid">Active INOs</TabsTrigger>
         <TabsTrigger value="my">My NFTs</TabsTrigger>
       </TabsList>
       <div className="w-fit">
